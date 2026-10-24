@@ -3,6 +3,7 @@ import "./App.css";
 import Header from "./components/Header";
 import Home from "./components/Home";
 import AuthForm from "./components/AuthForm";
+import Diagnose from "./components/Diagnose";
 
 function App() {
   const [page, setPage] = useState("home"); // home | signin | signup | diagnose
@@ -21,10 +22,10 @@ function App() {
     localStorage.setItem("currentUser", JSON.stringify(currentUser));
   }, [currentUser]);
 
-  // return an error string, or null if success
+  // mengembalikan teks error, atau null kalau berhasil
   const handleSignUp = ({ name, email, password }) => {
     if (users.some((u) => u.email === email)) {
-      return "Email is already registered.";
+      return "Email sudah terdaftar.";
     }
     setUsers([...users, { name, email, password }]);
     setCurrentUser({ name, email });
@@ -36,7 +37,7 @@ function App() {
     const found = users.find(
       (u) => u.email === email && u.password === password
     );
-    if (!found) return "Wrong email or password.";
+    if (!found) return "Email atau password salah.";
     setCurrentUser({ name: found.name, email: found.email });
     setPage("home");
     return null;
@@ -55,7 +56,7 @@ function App() {
     setPage("home");
     setTimeout(() => {
       const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      if (el && id !== "top") el.scrollIntoView({ behavior: "smooth" });
       else window.scrollTo({ top: 0, behavior: "smooth" });
     }, 50);
   };
@@ -64,6 +65,7 @@ function App() {
     <div className="app">
       <Header
         currentUser={currentUser}
+        page={page}
         setPage={setPage}
         onNavigate={goTo}
         onSignOut={handleSignOut}
@@ -88,16 +90,10 @@ function App() {
       )}
 
       {page === "diagnose" && (
-        <section className="placeholder">
-          <h2>Diagnosis page coming next 🛠️</h2>
-          <p>Hi {currentUser?.name}, this is where the chat + CF flow will go.</p>
-          <button className="btn btn-primary" onClick={() => setPage("home")}>
-            Back to home
-          </button>
-        </section>
+        <Diagnose user={currentUser} onExit={() => setPage("home")} />
       )}
 
-      <footer className="footer">© 2026 WhyPC (temporary name)</footer>
+      <footer className="footer">© 2026 crash-out</footer>
     </div>
   );
 }
