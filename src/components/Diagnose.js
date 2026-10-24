@@ -9,13 +9,16 @@ import {
   ArrowCounterClockwiseIcon,
   HouseIcon,
   WrenchIcon,
-  NotePencilIcon,
+  CameraIcon,
   UploadSimpleIcon,
   XIcon,
   ArrowDownIcon,
+  LaptopIcon,
+  DesktopTowerIcon,
+  ArrowRightIcon,
 } from "@phosphor-icons/react";
 import { img } from "../Assets";
-import { LEVELS, HYPOTHESES, calcCF, verdict } from "../data/rules";
+import { HYPOTHESES, calcCF, verdict } from "../data/rules";
 import "./Diagnose.css";
 
 const THRESHOLD = 40; // batas persentase hipotesis dianggap cocok
@@ -27,13 +30,212 @@ const VISUAL = {
   corrupted: { image: img.corrupted, Icon: FileXIcon },
 };
 
+const EMPTY_SPEC = {
+  type: "",
+  model: "",
+  cpu: "",
+  gpu: "",
+  ram: "",
+  storage: "",
+  os: "",
+};
+
+/* ---------- Form spek (sebelum chat, tidak mempengaruhi perhitungan) ---------- */
+function SpecForm({ spec, setSpec, onDone, onExit }) {
+  const [error, setError] = useState("");
+
+  const change = (e) => {
+    setSpec({ ...spec, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!spec.type) return setError("Pilih dulu jenis perangkatmu.");
+    onDone();
+  };
+
+  return (
+    <form className="spec-card" onSubmit={submit} noValidate>
+      <div className="spec-head">
+        <span className="bot-avatar">
+          <CpuIcon size={20} color="#fafafa" weight="fill" />
+        </span>
+        <div>
+          <h2>Spek perangkatmu</h2>
+          <p>Isi sebisanya saja. Data ini hanya sebagai catatan dan tidak mempengaruhi hasil diagnosa.</p>
+        </div>
+      </div>
+
+      <p className="spec-label">Jenis perangkat</p>
+      <div className="type-row">
+        <button
+          type="button"
+          className={spec.type === "Laptop" ? "type-btn on" : "type-btn"}
+          onClick={() => {
+            setSpec({ ...spec, type: "Laptop" });
+            setError("");
+          }}
+        >
+          <LaptopIcon size={26} weight="duotone" /> Laptop
+        </button>
+        <button
+          type="button"
+          className={spec.type === "PC Desktop" ? "type-btn on" : "type-btn"}
+          onClick={() => {
+            setSpec({ ...spec, type: "PC Desktop" });
+            setError("");
+          }}
+        >
+          <DesktopTowerIcon size={26} weight="duotone" /> PC Desktop
+        </button>
+      </div>
+
+      <div className="spec-grid">
+        <label className="spec-field">
+          <span>Merek / model</span>
+          <input name="model" value={spec.model} onChange={change} placeholder="Contoh: ASUS VivoBook 14" />
+        </label>
+        <label className="spec-field">
+          <span>Prosesor (CPU)</span>
+          <input name="cpu" value={spec.cpu} onChange={change} placeholder="Contoh: Intel Core i5-1135G7" />
+        </label>
+        <label className="spec-field">
+          <span>Kartu grafis (GPU)</span>
+          <input name="gpu" value={spec.gpu} onChange={change} placeholder="Contoh: NVIDIA GTX 1650 / bawaan" />
+        </label>
+        <label className="spec-field">
+          <span>RAM</span>
+          <select name="ram" value={spec.ram} onChange={change}>
+            <option value="">Pilih</option>
+            <option>4 GB</option>
+            <option>8 GB</option>
+            <option>16 GB</option>
+            <option>32 GB</option>
+            <option>64 GB atau lebih</option>
+            <option>Tidak tahu</option>
+          </select>
+        </label>
+        <label className="spec-field">
+          <span>Penyimpanan</span>
+          <select name="storage" value={spec.storage} onChange={change}>
+            <option value="">Pilih</option>
+            <option>SSD</option>
+            <option>HDD</option>
+            <option>SSD + HDD</option>
+            <option>Tidak tahu</option>
+          </select>
+        </label>
+        <label className="spec-field">
+          <span>Sistem operasi</span>
+          <select name="os" value={spec.os} onChange={change}>
+            <option value="">Pilih</option>
+            <option>Windows 11</option>
+            <option>Windows 10</option>
+            <option>Windows lainnya</option>
+            <option>Linux</option>
+            <option>macOS</option>
+            <option>Tidak tahu</option>
+          </select>
+        </label>
+      </div>
+
+      {error && <p className="error">{error}</p>}
+
+      <div className="spec-actions">
+        <button type="button" className="btn btn-ghost" onClick={onExit}>
+          Kembali
+        </button>
+        <button type="submit" className="btn btn-dark">
+          Mulai chat <ArrowRightIcon size={16} weight="bold" />
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/* ---------- Screenshot & deskripsi tambahan (sebelum chat, semua opsional) ---------- */
+function ExtraForm({ note, setNote, shot, setShot, onDone, onBack }) {
+  const onFile = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (shot) URL.revokeObjectURL(shot.url);
+    setShot({ url: URL.createObjectURL(f), name: f.name });
+  };
+
+  const removeShot = () => {
+    if (shot) URL.revokeObjectURL(shot.url);
+    setShot(null);
+  };
+
+  return (
+    <div className="spec-card">
+      <div className="spec-head">
+        <span className="bot-avatar">
+          <CameraIcon size={20} color="#fafafa" weight="fill" />
+        </span>
+        <div>
+          <h2>Screenshot &amp; deskripsi tambahan</h2>
+          <p>Boleh dikosongkan. Kalau tidak ada, langsung tekan OK untuk mulai chat.</p>
+        </div>
+      </div>
+
+      <p className="spec-label">
+        Screenshot masalah <span className="opt-tag">Opsional</span>
+      </p>
+      <div className="shot-row">
+        {shot ? (
+          <div className="shot">
+            <img src={shot.url} alt="Screenshot masalah" />
+            <span>{shot.name}</span>
+            <button
+              type="button"
+              className="shot-x"
+              aria-label="Hapus screenshot"
+              onClick={removeShot}
+            >
+              <XIcon size={14} weight="bold" />
+            </button>
+          </div>
+        ) : (
+          <label className="upload">
+            <UploadSimpleIcon size={18} />
+            Upload screenshot masalah
+            <input type="file" accept="image/*" onChange={onFile} hidden />
+          </label>
+        )}
+      </div>
+
+      <p className="spec-label">
+        Deskripsi tambahan <span className="opt-tag">Opsional</span>
+      </p>
+      <textarea
+        className="note"
+        rows={4}
+        placeholder="Contoh: PC mulai panas sejak ganti casing, kipas berisik terutama saat main game..."
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+      />
+
+      <div className="spec-actions">
+        <button type="button" className="btn btn-ghost" onClick={onBack}>
+          Kembali
+        </button>
+        <button type="button" className="btn btn-dark" onClick={onDone}>
+          OK, mulai chat <ArrowRightIcon size={16} weight="bold" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Bubble hasil: skor confidence + ringkasan ---------- */
 function ResultCard({ hypo, res }) {
   const pct = Math.round(res.cf * 100);
   const v = verdict(res.cf);
   const match = pct >= THRESHOLD;
 
-  // gejala yang kamu jawab cukup yakin ke atas (>= 0.6)
+  // gejala yang jawabannya kuat (>= 0.6)
   const strong = res.rows.filter((r) => r.user >= 0.6);
 
   return (
@@ -65,7 +267,7 @@ function ResultCard({ hypo, res }) {
 
         {strong.length > 0 && (
           <>
-            <p className="result-sub">Gejala yang kamu yakini:</p>
+            <p className="result-sub">Yang kamu laporkan:</p>
             <ul className="result-list">
               {strong.map((r, i) => (
                 <li key={i}>
@@ -81,8 +283,7 @@ function ResultCard({ hypo, res }) {
 
         {match && (
           <p className="result-hint">
-            <ArrowDownIcon size={14} weight="bold" /> Cara penanganan dan
-            deskripsi tambahan ada di bawah
+            <ArrowDownIcon size={14} weight="bold" /> Rekomendasi perbaikan ada di bawah
           </p>
         )}
 
@@ -123,24 +324,24 @@ function ResultCard({ hypo, res }) {
 function Diagnose({ user, onExit }) {
   const firstName = user?.name?.split(" ")[0] || "kamu";
 
-  const [messages, setMessages] = useState(() => [
-    { id: 1, from: "bot", text: `Hai ${firstName}! Aku bantu cari tahu kenapa PC-mu bermasalah ya.` },
-    { id: 2, from: "bot", text: "Apa hipotesis masalah PC-mu?" },
-  ]);
+  const [spec, setSpec] = useState(EMPTY_SPEC);
+  const [specDone, setSpecDone] = useState(false);
+  const [extraDone, setExtraDone] = useState(false);
+
+  const [messages, setMessages] = useState([]);
   const [phase, setPhase] = useState("pick"); // pick | ask | result | low
   const [hypo, setHypo] = useState(null);
   const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState([]);
+  const [answers, setAnswers] = useState([]); // opsi yang dipilih per gejala
   const [selected, setSelected] = useState(null);
   const [typing, setTyping] = useState(false);
   const [result, setResult] = useState(null); // { hypo, res } hanya kalau skor cocok
 
-  // deskripsi tambahan
+  // screenshot & deskripsi tambahan (diisi sebelum chat)
   const [note, setNote] = useState("");
   const [shot, setShot] = useState(null); // { url, name }
-  const [saved, setSaved] = useState(false);
 
-  const idRef = useRef(3);
+  const idRef = useRef(1);
   const timers = useRef([]);
   const bodyRef = useRef(null);
   const afterRef = useRef(null);
@@ -170,6 +371,21 @@ function Diagnose({ user, onExit }) {
     return () => clearTimeout(t);
   }, [result]);
 
+  /* 0. spek selesai diisi -> mulai chat */
+  const startChat = () => {
+    const parts = [spec.type, spec.model].filter(Boolean).join(" ");
+    const extras = [shot && "screenshot", note.trim() && "deskripsi tambahan"].filter(Boolean);
+    setExtraDone(true);
+    window.scrollTo({ top: 0 });
+    add(
+      { from: "bot", text: `Hai ${firstName}! Aku sudah catat perangkatmu: ${parts}.` },
+      ...(extras.length
+        ? [{ from: "bot", text: `${extras.join(" dan ")} darimu juga sudah kucatat.` }]
+        : []),
+      { from: "bot", text: "Sekarang, apa hipotesis masalah PC-mu?" }
+    );
+  };
+
   /* 1. user memilih hipotesis (goal) */
   const pickHypothesis = (h) => {
     add({ from: "user", text: h.name });
@@ -177,7 +393,7 @@ function Diagnose({ user, onExit }) {
     later(() => {
       add({
         from: "bot",
-        text: `Oke, kita uji "${h.name}". Aku akan cek ${h.symptoms.length} gejala satu per satu sebagai bukti.`,
+        text: `Oke, kita uji "${h.name}". Aku akan tanya ${h.symptoms.length} hal satu per satu sebagai bukti.`,
       });
       setHypo(h);
       setQIndex(0);
@@ -191,11 +407,11 @@ function Diagnose({ user, onExit }) {
   /* 2. user menjawab pertanyaan gejala */
   const sendAnswer = () => {
     if (selected === null || !hypo) return;
-    const level = LEVELS[selected];
     const symptom = hypo.symptoms[qIndex];
-    const nextAnswers = [...answers, level];
+    const option = symptom.options[selected];
+    const nextAnswers = [...answers, option];
 
-    add({ from: "bot", text: symptom.question }, { from: "user", text: level.label });
+    add({ from: "bot", text: symptom.question }, { from: "user", text: option.label });
     setAnswers(nextAnswers);
     setSelected(null);
     setTyping(true);
@@ -213,12 +429,10 @@ function Diagnose({ user, onExit }) {
         add({ from: "bot", type: "result", hypo, res });
 
         if (pct >= THRESHOLD) {
-          // hipotesis cocok -> tampilkan troubleshooting + deskripsi di bawah
           setResult({ hypo, res });
           setPhase("result");
           setTyping(false);
         } else {
-          // kemungkinan kecil -> bot tanya mau cek lagi atau tidak
           setPhase("low");
           later(() => {
             add({
@@ -237,9 +451,6 @@ function Diagnose({ user, onExit }) {
     add({ from: "user", text: "Cek masalah lain" });
     setPhase("pick");
     setResult(null);
-    setNote("");
-    setShot(null);
-    setSaved(false);
     setTyping(true);
     later(() => {
       add({ from: "bot", text: "Siap! Hipotesis mana yang mau diuji berikutnya?" });
@@ -250,31 +461,63 @@ function Diagnose({ user, onExit }) {
     }, 700);
   };
 
-  /* deskripsi tambahan */
-  const onFile = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setShot({ url: URL.createObjectURL(f), name: f.name });
-    setSaved(false);
-  };
-
   const showPick = !typing && phase === "pick";
   const showAsk = !typing && phase === "ask" && hypo;
   const showEnd = !typing && phase === "result";
   const showLow = !typing && phase === "low";
 
+  // ringkasan spek singkat untuk header chat
+  const specSummary = [spec.type, spec.cpu].filter(Boolean).join(" · ");
+
+  /* ---------- Tahap 1: form spek ---------- */
+  if (!specDone) {
+    return (
+      <section className="diag">
+        <div className="diag-shell">
+          <SpecForm
+            spec={spec}
+            setSpec={setSpec}
+            onDone={() => {
+              setSpecDone(true);
+              window.scrollTo({ top: 0 });
+            }}
+            onExit={onExit}
+          />
+        </div>
+      </section>
+    );
+  }
+
+  /* ---------- Tahap 2: screenshot & deskripsi tambahan (opsional) ---------- */
+  if (!extraDone) {
+    return (
+      <section className="diag">
+        <div className="diag-shell">
+          <ExtraForm
+            note={note}
+            setNote={setNote}
+            shot={shot}
+            setShot={setShot}
+            onDone={startChat}
+            onBack={() => setSpecDone(false)}
+          />
+        </div>
+      </section>
+    );
+  }
+
+  /* ---------- Tahap 3: chat ---------- */
   return (
     <section className="diag">
       <div className="diag-shell">
-        {/* ---------- Chat ---------- */}
         <div className="chat">
           <div className="chat-head">
             <span className="bot-avatar">
               <CpuIcon size={20} color="#fafafa" weight="fill" />
             </span>
             <div>
-              <strong>Asisten Crash-Out</strong>
-              <small>Diagnosa dengan Certainty Factor</small>
+              <strong>Asisten crash-out</strong>
+              <small>{specSummary || "Diagnosa dengan Certainty Factor"}</small>
             </div>
             <button className="btn btn-ghost btn-sm" onClick={onExit}>
               <HouseIcon size={14} weight="bold" /> Beranda
@@ -325,7 +568,7 @@ function Diagnose({ user, onExit }) {
               </div>
             )}
 
-            {/* pertanyaan gejala dengan 5 tingkat keyakinan */}
+            {/* pertanyaan gejala dengan pilihan sesuai pertanyaan */}
             {showAsk && (
               <div className="msg bot">
                 <div className="bubble prompt">
@@ -334,16 +577,19 @@ function Diagnose({ user, onExit }) {
                   </span>
                   <p className="prompt-q">{hypo.symptoms[qIndex].question}</p>
                   <div className="options">
-                    {LEVELS.map((l, i) => (
-                      <label key={l.label} className={selected === i ? "opt on" : "opt"}>
+                    {hypo.symptoms[qIndex].options.map((o, i) => (
+                      <label key={`${qIndex}-${o.label}`} className={selected === i ? "opt on" : "opt"}>
                         <input
                           type="radio"
-                          name="level"
+                          name={`q-${qIndex}`}
                           checked={selected === i}
                           onChange={() => setSelected(i)}
                         />
                         <span className="dot" />
-                        <span className="opt-label">{l.label}</span>
+                        <span className="opt-label">
+                          {o.label}
+                          {o.hint && <small>{o.hint}</small>}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -385,18 +631,17 @@ function Diagnose({ user, onExit }) {
         </div>
       </div>
 
-      {/* ---------- Di bawah chat: 2 bagian, hanya muncul kalau skor cocok ---------- */}
+      {/* ---------- Di bawah chat: hanya muncul kalau skor cocok ---------- */}
       {result && (
         <div className="diag-after" ref={afterRef}>
-          {/* 1. Cara troubleshooting */}
           <div className="after-card" style={{ "--d": "0ms" }}>
             <div className="after-head">
               <span className="after-icon">
                 <WrenchIcon size={20} weight="fill" />
               </span>
               <div>
-                <h3>Cara Troubleshooting</h3>
-                <p>Penanganan untuk {result.hypo.name}</p>
+                <h3>Rekomendasi Perbaikan</h3>
+                <p>Saran penanganan untuk {result.hypo.name}</p>
               </div>
             </div>
 
@@ -408,71 +653,6 @@ function Diagnose({ user, onExit }) {
                 </li>
               ))}
             </ol>
-          </div>
-
-          {/* 2. Deskripsi tambahan */}
-          <div className="after-card" style={{ "--d": "150ms" }}>
-            <div className="after-head">
-              <span className="after-icon">
-                <NotePencilIcon size={20} weight="fill" />
-              </span>
-              <div>
-                <h3>Deskripsi Tambahan</h3>
-                <p>Ceritakan hal lain yang belum tertanya di chat</p>
-              </div>
-            </div>
-
-            <textarea
-              className="note"
-              rows={5}
-              placeholder="Contoh: PC mulai panas sejak ganti casing, kipas berisik terutama saat main game..."
-              value={note}
-              onChange={(e) => {
-                setNote(e.target.value);
-                setSaved(false);
-              }}
-            />
-
-            <div className="shot-row">
-              {shot ? (
-                <div className="shot">
-                  <img src={shot.url} alt="Screenshot masalah" />
-                  <span>{shot.name}</span>
-                  <button
-                    type="button"
-                    className="shot-x"
-                    aria-label="Hapus screenshot"
-                    onClick={() => {
-                      setShot(null);
-                      setSaved(false);
-                    }}
-                  >
-                    <XIcon size={14} weight="bold" />
-                  </button>
-                </div>
-              ) : (
-                <label className="upload">
-                  <UploadSimpleIcon size={18} />
-                  Upload screenshot masalah (opsional)
-                  <input type="file" accept="image/*" onChange={onFile} hidden />
-                </label>
-              )}
-            </div>
-
-            <div className="note-actions">
-              <button
-                className="btn btn-dark btn-sm"
-                disabled={!note.trim() && !shot}
-                onClick={() => setSaved(true)}
-              >
-                Simpan deskripsi
-              </button>
-              {saved && (
-                <span className="saved">
-                  <CheckCircleIcon size={16} weight="fill" /> Tersimpan
-                </span>
-              )}
-            </div>
           </div>
         </div>
       )}

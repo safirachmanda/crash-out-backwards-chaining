@@ -37,7 +37,7 @@ const features = [
     text: "Setiap jawaban membawa tingkat keyakinanmu, jadi hasilnya berupa persentase, bukan sekadar ya atau tidak.",
     meta: [
       { icon: <ChartLineIcon size={16} />, label: "Persentase CF" },
-      { icon: <ChatCircleDotsIcon size={16} />, label: "5 tingkat jawaban" },
+      { icon: <ChatCircleDotsIcon size={16} />, label: "Pilihan jawaban mudah" },
     ],
   },
   {
@@ -55,7 +55,7 @@ const features = [
 const stats = [
   { icon: <PuzzlePieceIcon size={32} color="#fafafa" />, value: "4+", label: "Jenis masalah" },
   { icon: <BinocularsIcon size={32} color="#fafafa" />, value: "20+", label: "Gejala dicek" },
-  { icon: <ChartLineIcon size={32} color="#fafafa" />, value: "5", label: "Tingkat keyakinan" },
+  { icon: <ChartLineIcon size={32} color="#fafafa" />, value: "Mudah", label: "Pilihan jawaban" },
   { icon: <WalletIcon size={32} color="#fafafa" />, value: "Gratis", label: "Dipakai" },
 ];
 
