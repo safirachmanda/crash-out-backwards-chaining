@@ -287,34 +287,6 @@ function ResultCard({ hypo, res }) {
           </p>
         )}
 
-        <details className="calc">
-          <summary>Lihat perhitungan</summary>
-          <table>
-            <thead>
-              <tr>
-                <th>Gejala</th>
-                <th>Pakar</th>
-                <th>User</th>
-                <th>CF</th>
-              </tr>
-            </thead>
-            <tbody>
-              {res.rows.map((r, i) => (
-                <tr key={i}>
-                  <td>{r.question}</td>
-                  <td>{r.expert}</td>
-                  <td>
-                    {r.user} <small>({r.userLabel})</small>
-                  </td>
-                  <td>{r.value.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="calc-note">
-            CF(gejala) = pakar × user. Gabungan: CFlama + CFbaru × (1 − CFlama).
-          </p>
-        </details>
       </div>
     </div>
   );

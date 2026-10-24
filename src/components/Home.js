@@ -178,11 +178,6 @@ function Home({ onStart }) {
           </div>
         </div>
 
-        <div className="result-chip">
-          <span><ThermometerHotIcon size={18} weight="fill" /> Overheating</span>
-          <strong>CF 80%</strong>
-        </div>
-
         <div className="hero-dots">
           {heroSlides.map((_, i) => (
             <span

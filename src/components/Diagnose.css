@@ -220,19 +220,6 @@
   color: var(--accent); font-size: 0.84rem; font-weight: 700;
 }
 
-/* rincian perhitungan */
-.calc { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); overflow-x: auto; }
-.calc summary { cursor: pointer; font-size: 0.84rem; font-weight: 700; color: var(--deep); }
-.calc table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 0.76rem; }
-.calc th {
-  text-align: left; padding: 6px 8px; color: var(--muted);
-  font-weight: 700; border-bottom: 1.5px solid var(--line);
-}
-.calc td { padding: 8px; vertical-align: top; border-bottom: 1px solid var(--line); line-height: 1.4; }
-.calc td:nth-child(n+2), .calc th:nth-child(n+2) { white-space: nowrap; }
-.calc small { color: var(--muted); }
-.calc-note { margin-top: 10px; color: var(--muted); font-size: 0.74rem; line-height: 1.5; }
-
 /* ---------- Di bawah chat (muncul kalau skor cocok) ---------- */
 .diag-after {
   width: 100%; max-width: 860px; margin: 40px auto 0; padding: 0 20px;
