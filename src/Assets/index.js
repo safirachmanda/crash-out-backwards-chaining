@@ -2,6 +2,8 @@ import blueScreen from "./Blue Screen.avif";
 import corrupted from "./Corrupted Install.avif";
 import glitch from "./Graphic Glitch.avif";
 import overheating from "./Overheating.avif";
+import thermalPaste from "./thermal_paste.avif";
+import gpuVram from "./gpu_vram.avif";
 import main1 from "./main_1.avif";
 import main2 from "./main_2.avif";
 import main3 from "./main_3.avif";
@@ -14,7 +16,7 @@ import confidence from "./Results with a confidence level.avif";
 import steps from "./Step-by-step handling.avif";
 
 export const img = {
-  blueScreen, corrupted, glitch, overheating,
+  blueScreen, corrupted, glitch, overheating, thermalPaste, gpuVram,
   main1, main2, main3,
   pp1, pp2, pp3, pp4, pp5,
   confidence, steps,

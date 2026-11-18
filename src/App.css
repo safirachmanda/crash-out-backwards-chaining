@@ -409,3 +409,7 @@ section[id], [id="about"] { scroll-margin-top: 80px; }
   .auth-visual { display: none; }
   .auth-form { padding: 36px 26px; }
 }
+/* 6 kartu masalah: 3 kolom di desktop */
+.dest-grid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { .dest-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .dest-grid { grid-template-columns: 1fr; } }

@@ -17,6 +17,8 @@ import {
   ShieldCheckIcon,
   ListChecksIcon,
   LeafIcon,
+  DropIcon,
+  DesktopTowerIcon,
 } from "@phosphor-icons/react";
 import { img } from "../Assets";
 
@@ -24,8 +26,10 @@ const heroSlides = [img.main1, img.main2, img.main3];
 
 const problems = [
   { image: img.overheating, icon: <ThermometerHotIcon size={18} weight="fill" />, name: "Overheating", text: "CPU atau GPU panas, kipas berisik, performa lambat" },
+  { image: img.thermalPaste, icon: <DropIcon size={18} weight="fill" />, name: "Thermal Paste", text: "Suhu tetap tinggi walau dipakai ringan, sudah lama tidak diservis" },
   { image: img.blueScreen, icon: <MonitorIcon size={18} weight="fill" />, name: "Blue Screen", text: "Crash mendadak dan kode error (BSOD)" },
   { image: img.glitch, icon: <CpuIcon size={18} weight="fill" />, name: "Graphic Glitch", text: "Artefak, layar berkedip, atau tampilan rusak" },
+  { image: img.gpuVram, icon: <DesktopTowerIcon size={18} weight="fill" />, name: "Kerusakan GPU/VRAM", text: "Artefak muncul sampai di BIOS atau layar booting" },
   { image: img.corrupted, icon: <FileXIcon size={18} weight="fill" />, name: "Corrupted Install", text: "File rusak saat install aplikasi" },
 ];
 
@@ -34,7 +38,7 @@ const features = [
     image: img.confidence,
     badge: "Certainty Factor",
     title: "Hasil dengan tingkat keyakinan",
-    text: "Setiap jawaban membawa tingkat keyakinanmu, jadi hasilnya berupa persentase, bukan sekadar ya atau tidak.",
+    text: "Jawab Ya atau Tidak untuk tiap gejala, lalu pilih seberapa yakin kamu. Hasilnya berupa persentase untuk banyak diagnosis sekaligus.",
     meta: [
       { icon: <ChartLineIcon size={16} />, label: "Persentase CF" },
       { icon: <ChatCircleDotsIcon size={16} />, label: "Pilihan jawaban mudah" },
@@ -53,8 +57,8 @@ const features = [
 ];
 
 const stats = [
-  { icon: <PuzzlePieceIcon size={32} color="#fafafa" />, value: "4+", label: "Jenis masalah" },
-  { icon: <BinocularsIcon size={32} color="#fafafa" />, value: "20+", label: "Gejala dicek" },
+  { icon: <PuzzlePieceIcon size={32} color="#fafafa" />, value: "6", label: "Kategori masalah" },
+  { icon: <BinocularsIcon size={32} color="#fafafa" />, value: "20", label: "Gejala dicek" },
   { icon: <ChartLineIcon size={32} color="#fafafa" />, value: "Mudah", label: "Pilihan jawaban" },
   { icon: <WalletIcon size={32} color="#fafafa" />, value: "Gratis", label: "Dipakai" },
 ];
